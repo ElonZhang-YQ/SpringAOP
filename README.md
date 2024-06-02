@@ -30,9 +30,12 @@
 ## JDK动态代理和CGLib的区别
 
 - JDK动态代理使用拦截器（拦截器必须实现InvocationHandler），再加上反射机制生成一个实现代理接口的匿名类，在调用具体方法前调用InvokeHandler来处理。
+  - 其核心类为 java.lang.reflect.Proxy 和 java.lang.reflect.InvocationHandler 来生成动态代理类和实例
   - 被代理的类必须要实现接口才可以，JDK动态代理只能对实现了接口的类生成代理，而不能针对类。
 - CGLib利用ASM开源包，将代理对象类的class文件加载进来，修改其字节码生成子类来处理。
+  - 其核心类为 net.sf.cglib.proxy.Enhancer 和 net.sf.cglib.proxy.MethodInterceptor。
   - 被代理的类不需要实现接口也可，CGLib针对类实现代理，主要是对指定的类生成一个子类，覆盖其中的方法实现增强，但是因为采用的是继承，所以该类或方法最好不要声明成final，对于final类或方法是无法继承的。
+  - CGLib能够动态生成被代理对象的一个子类，子类中拦截所有父类方法的调用，并且拦截器的类型为 MethodInterceptor
 - JDK动态代理和CGLib动态代理速度比较：
   - 在JDK1.6之前，因为反射效率较差，所以CGLib通过ASM字节码生成代理类效率较高。
   - 在后续JDK版本中对JDK动态代理优化之后，调用次数较少的情况下，JDK代理效率高于CGLib的效率。大量调用的情况下，JDK1.6和JDK7还是会比CGLib差一些。在JDK8之后，JDK动态代理效率高于CGLib代理。
@@ -43,3 +46,4 @@
   - 当bean实现接口时，Spring就会用JDK动态代理
   - 当bean没有实现接口时，Spring使用CGLib实现
 - 也可以强制使用CGLib，在Spring配置中加入`<aop:aspectj-autoproxy proxy-target-class="true"/>`
+
